@@ -6,7 +6,7 @@
 /*   By: aldiaz-u <aldiaz-u@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 13:30:15 by aldiaz-u          #+#    #+#             */
-/*   Updated: 2025/06/09 14:02:28 by aldiaz-u         ###   ########.fr       */
+/*   Updated: 2025/06/09 16:13:45 by aldiaz-u         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,12 +92,40 @@ char	*get_path(char **argv)
 	path = get_next_line(fd);
 	return (path);
 }
+void	exec_command(char *path, char **argv, char **commands)
+{
+	pid_t	pid;
+	char	*args[3];
+	char	**scomand;
+	char	*comand;
+	int		infile;
+	int		otfile;
+
+	infile = open(argv[1], O_RDONLY);
+	otfile = open(argv[get_end(argv)], O_RDWR | O_CREAT | O_TRUNC, 0644);
+	pid = fork();
+	if (pid == 0)
+	{
+		scomand = ft_split(commands[0], ' ');
+		comand = scomand[1];
+		args[0] = path;
+		args[1] = comand;
+		args[2] = NULL;
+		dup2(infile, STDIN_FILENO);
+		dup2(otfile, STDOUT_FILENO);
+		execve(path, args, NULL);
+		perror("execve");
+		exit(1);
+	}
+	wait(NULL);
+	close(otfile);
+	close(infile);
+}
 int	main(int argc, char *argv[])
 {
 	int		infile;
 	int		outfile;
-	char	**commands;
-	int		index;
+	char	**commands;;
 	char	*path;
 
 	if (argc < 3)
@@ -115,8 +143,6 @@ int	main(int argc, char *argv[])
 	commands = extract_commands(argv);
 	is_valid_command(commands, outfile);
 	path = get_path(argv);
-	index = 0;
-	ft_printf("%s", path);	
-	index = 0;
+	exec_command(path, argv, commands);
 	free(commands);
 }
