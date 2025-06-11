@@ -6,7 +6,7 @@
 /*   By: aldiaz-u <aldiaz-u@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 13:30:15 by aldiaz-u          #+#    #+#             */
-/*   Updated: 2025/06/11 16:00:04 by aldiaz-u         ###   ########.fr       */
+/*   Updated: 2025/06/11 16:37:30 by aldiaz-u         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ int	get_outfile(char **argv)
 	return (index - 1);
 }
 
-int	exec_first_command(char *path, int infile, char **args)
+int	exec_first_command(char *path, int infile, char **args, char **envp)
 {
 	pid_t	pid;
 	int		fd[2];
@@ -95,7 +95,7 @@ int	exec_first_command(char *path, int infile, char **args)
 		close(infile);
 		close(fd[0]);
 		close(fd[1]);
-		execve(path, args, NULL);
+		execve(path, args, envp);
 		perror("execve");
 		exit(1);
 	}
@@ -105,7 +105,7 @@ int	exec_first_command(char *path, int infile, char **args)
 	return (fd[0]);
 }
 
-int	exec_commands(char *path, char **args, int infile)
+int	exec_commands(char *path, char **args, int infile, char **envp)
 {
 	pid_t	pid;
 	int		fd[2];
@@ -123,7 +123,7 @@ int	exec_commands(char *path, char **args, int infile)
 		close(infile);
 		close(fd[0]);
 		close(fd[1]);
-		execve(path, args, NULL);
+		execve(path, args, envp);
 		perror("execve");
 		exit(1);
 	}
@@ -133,7 +133,7 @@ int	exec_commands(char *path, char **args, int infile)
 	return (fd[0]);
 }
 
-void	exec_final_command(char *path, char **args, int infile, char *outfile)
+void	exec_final_command(char *path, char **args, int infile, char *outfile, char **envp)
 {
 	pid_t	pid;
 	int		outfile_fd;
@@ -146,7 +146,7 @@ void	exec_final_command(char *path, char **args, int infile, char *outfile)
 		dup2(outfile_fd, STDOUT_FILENO);
 		close(infile);
 		close(outfile_fd);
-		execve(path, args, NULL);
+		execve(path, args, envp);
 		perror("execve");
 		exit(1);
 	}
@@ -209,7 +209,7 @@ void	ft_free_split(char **split)
 	free(split);
 }
 
-int	first(char **argv)
+int	first(char **argv, char **envp)
 {
 	char	**split;
 	char	*path;
@@ -219,40 +219,40 @@ int	first(char **argv)
 	infile = open(argv[1], O_RDONLY);
 	split = ft_split(argv[2], ' ');
 	path = get_path(split[0]);
-	fd = exec_first_command(path, infile, split);
+	fd = exec_first_command(path, infile, split, envp);
 	ft_free_split(split);
 	free(path);
 	return (fd);
 }
 
-int	middle(char **argv, int fd, int prev_fd)
+int	middle(char **argv, int fd, int prev_fd, char **envp, int index)
 {
 	char	**split;
 	char	*path;
 
-	split = ft_split(argv[2], ' ');
+	split = ft_split(argv[index], ' ');
 	path = get_path(split[0]);
-	fd = exec_commands(path, split, fd);
+	fd = exec_commands(path, split, fd, envp);
 	close(prev_fd);
 	ft_free_split(split);
 	free(path);
 	return (fd);
 }
 
-void	final(char **argv, int fd, int argc)
+void	final(char **argv, int fd, int argc, char **envp)
 {
 	char	**split;
 	char	*path;
 
 	split = ft_split(argv[argc -2], ' ');
 	path = get_path(split[0]);
-	exec_final_command(path, split, fd, argv[argc - 1]);
+	exec_final_command(path, split, fd, argv[argc - 1], envp);
 	ft_free_split(split);
 	free(path);
 	close(fd);
 }
 
-int	main(int argc, char *argv[], char *env[ ])
+int	main(int argc, char *argv[], char *envp[ ])
 {
 	int		index;
 	int		fd;
@@ -268,13 +268,13 @@ int	main(int argc, char *argv[], char *env[ ])
 		perror(argv[1]);
 		exit(-1);
 	}
-	fd = first(argv);
+	fd = first(argv, envp);
 	index = 3;
 	while (index < argc - 2)
 	{
 		prev_fd = fd;
-		middle(argv, fd, prev_fd);
+		fd = middle(argv, fd, prev_fd, envp, index);
 		index++;
 	}
-	final(argv, fd, argc);
+	final(argv, fd, argc, envp);
 }
