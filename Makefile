@@ -3,18 +3,20 @@ CC = cc
 CFLAGS = -Wall -Werror -Wextra
 SRCS = main.c get_next_line.c get_next_line_utils.c
 OBJS = $(SRCS:.c=.o)
-PRINTF_DIR = "printf"
+PRINTF_DIR = printf
 PRINTF_LIB = $(PRINTF_DIR)/libftprintf.a
 
 all: $(NAME)
+
+
+%.o:%.c 
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(NAME) : $(OBJS)
 	@echo -n "\033[32mcompilando $(NAME)...\n"
 	@make --no-print-directory -C $(PRINTF_DIR)
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(PRINTF_LIB)
 
-%.o : %.c 
-	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean : $(OBJS)
 	@echo -n "\033[34mclean...\n"
@@ -28,4 +30,4 @@ fclean : clean
 
 re : fclean all
 
-.PHONY: all clean re fclean
+.PHONY: all clean fclean re
