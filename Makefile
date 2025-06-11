@@ -18,7 +18,7 @@ $(NAME) : $(OBJS)
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(PRINTF_LIB)
 
 
-clean : $(OBJS)
+clean :
 	@echo -n "\033[34mclean...\n"
 	@make --no-print-directory clean -C $(PRINTF_DIR)
 	@rm -rf $(OBJS)

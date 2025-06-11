@@ -6,7 +6,7 @@
 /*   By: aldiaz-u <aldiaz-u@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 13:30:15 by aldiaz-u          #+#    #+#             */
-/*   Updated: 2025/06/11 10:09:41 by aldiaz-u         ###   ########.fr       */
+/*   Updated: 2025/06/11 16:00:04 by aldiaz-u         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ char	*get_path(char *command)
 		execve(args[0], args, NULL);
 		exit(1);
 	}
+	close(fd[1]);
 	wait(NULL);
 	path = get_next_line(fd[0]);
 	close(fd[0]);
@@ -251,7 +252,7 @@ void	final(char **argv, int fd, int argc)
 	close(fd);
 }
 
-int	main(int argc, char *argv[])
+int	main(int argc, char *argv[], char *env[ ])
 {
 	int		index;
 	int		fd;
