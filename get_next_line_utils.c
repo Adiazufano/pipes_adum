@@ -6,7 +6,7 @@
 /*   By: aldiaz-u <aldiaz-u@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 11:56:42 by aldiaz-u          #+#    #+#             */
-/*   Updated: 2025/06/06 11:45:38 by aldiaz-u         ###   ########.fr       */
+/*   Updated: 2025/06/13 12:41:22 by aldiaz-u         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,8 @@ char	*ft_strdup(const char *s)
 
 	if (!s)
 		return (NULL);
-	len = ft_strlen(s) + 1;
-	array = (char *)malloc(len * sizeof(char));
+	len = ft_strlen(s);
+	array = (char *)malloc(len + 1);
 	i = 0;
 	if (!array)
 		return (NULL);

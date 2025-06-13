@@ -6,7 +6,7 @@
 /*   By: aldiaz-u <aldiaz-u@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 13:30:15 by aldiaz-u          #+#    #+#             */
-/*   Updated: 2025/06/12 18:36:45 by aldiaz-u         ###   ########.fr       */
+/*   Updated: 2025/06/13 13:14:55 by aldiaz-u         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,20 @@ void	pipe_err(int *fd)
 		exit(1);
 	}
 }
+void	skip_quotes(char *str, int *i)
+{
+	char	quote;
 
+	quote = str[(*i)++];
+	while (str[*i] && str[*i] != quote)
+		(*i)++;
+	if (str[*i] == quote)
+		(*i)++;
+}
 int	count_words(char *str)
 {
-	int	i;
-	int	count;
+	int		i;
+	int		count;
 
 	i = 0;
 	count = 0;
@@ -35,26 +44,22 @@ int	count_words(char *str)
 		while (str[i] == ' ')
 			i++;
 		if (!str[i])
-			break;
-		if (str[i] == '\'')
-		{
-			i++;
-			while (str[i] && str[i] != '\'')
+			break ;
+		if (str[i] == '\'' || str[i] == '\"')
+			skip_quotes(str, &i);
+		else
+			while (str[i] && str[i] != ' ' && str[i] != '\'' && str[i] != '\"')
 				i++;
-			if (str[i] == '\'')
-				count++;
-		}
-		else if (str[i] != ' ' && str[i] != '\'')
-				count++;
-		i++;
+		count++;
 	}
-	return(count);
+	return (count);
 }
+
 char	*extract_word(const char *str, int *i)
 {
-	int	start;
-	char quote;
-	char *word;
+	int		start;
+	char	quote;
+	char	*word;
 
 	if (str[*i] == '\'' || str[*i] == '\"')
 	{
@@ -76,7 +81,7 @@ char	*extract_word(const char *str, int *i)
 	}
 }
 
-char **split_pipex(char *str)
+char	**split_pipex(char *str)
 {
 	char	**splited;
 	int		j;
@@ -90,7 +95,7 @@ char **split_pipex(char *str)
 		while (str[i] == ' ')
 			i++;
 		if (!str[i])
-			break;
+			break ;
 		splited[j++] = extract_word(str, &i);
 	}
 	splited[j] = NULL;
@@ -100,7 +105,7 @@ char **split_pipex(char *str)
 char	*fill_path(char *path)
 {
 	int	index;
-	
+
 	index = 0;
 	if (path)
 	{
@@ -113,6 +118,7 @@ char	*fill_path(char *path)
 	}
 	return (path);
 }
+
 char	*get_path(char *command)
 {
 	pid_t	pid;
@@ -152,7 +158,7 @@ int	get_outfile(char **argv)
 	return (index - 1);
 }
 
-int	exec_first_command(char *path, int infile, char **args,t_pipex *px)
+int	exec_first_command(char *path, int infile, char **args, t_pipex *px)
 {
 	pid_t	pid;
 	int		fd[2];
@@ -213,7 +219,8 @@ void	exec_final_command(char *path, char **args, int infile, t_pipex *px)
 	pid_t	pid;
 	int		outfile_fd;
 
-	outfile_fd = open(px -> argv[px -> argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	outfile_fd = open(px -> argv[px -> argc - 1],
+			O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	pid = fork();
 	if (pid == 0)
 	{
@@ -346,7 +353,7 @@ void	run_pipex(t_pipex *px)
 
 int	main(int argc, char *argv[], char *envp[ ])
 {
-	t_pipex px;
+	t_pipex	px;
 
 	px.argc = argc;
 	px.argv = argv;
@@ -362,4 +369,5 @@ int	main(int argc, char *argv[], char *envp[ ])
 		exit(-1);
 	}
 	run_pipex(&px);
+	get_next_line(-1);
 }
