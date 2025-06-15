@@ -6,7 +6,7 @@
 /*   By: aldiaz-u <aldiaz-u@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 13:30:15 by aldiaz-u          #+#    #+#             */
-/*   Updated: 2025/06/15 13:59:37 by aldiaz-u         ###   ########.fr       */
+/*   Updated: 2025/06/15 14:06:38 by aldiaz-u         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,15 +62,11 @@ int	count_words(char *str)
 		i++;
 	}
 	return (count);
-	return (count);
 }
 
 
 char	*extract_word(const char *str, int *i)
 {
-	int		start;
-	char	quote;
-	char	*word;
 	int		start;
 	char	quote;
 	char	*word;
@@ -96,7 +92,6 @@ char	*extract_word(const char *str, int *i)
 }
 
 char	**split_pipex(char *str)
-char	**split_pipex(char *str)
 {
 	char	**splited;
 	int		j;
@@ -110,7 +105,6 @@ char	**split_pipex(char *str)
 		while (str[i] == ' ')
 			i++;
 		if (!str[i])
-			break ;
 			break ;
 		splited[j++] = extract_word(str, &i);
 	}
@@ -189,7 +183,6 @@ int	get_outfile(char **argv)
 }
 
 int	exec_first_command(char *path, int infile, char **args, t_pipex *px)
-int	exec_first_command(char *path, int infile, char **args, t_pipex *px)
 {
 	pid_t	pid;
 	int		fd[2];
@@ -251,8 +244,6 @@ void	exec_final_command(char *path, char **args, int infile, t_pipex *px)
 	int		outfile_fd;
 	int		status;
 
-	outfile_fd = open(px -> argv[px -> argc - 1],
-			O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	outfile_fd = open(px -> argv[px -> argc - 1],
 			O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	pid = fork();
@@ -337,7 +328,6 @@ int	run_pipex(t_pipex *px)
 
 int	main(int argc, char *argv[], char *envp[])
 {
-	t_pipex	px;
 	t_pipex	px;
 
 	px.argc = argc;
