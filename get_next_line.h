@@ -6,7 +6,7 @@
 /*   By: aldiaz-u <aldiaz-u@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 17:38:05 by aldiaz-u          #+#    #+#             */
-/*   Updated: 2025/06/12 16:19:43 by aldiaz-u         ###   ########.fr       */
+/*   Updated: 2025/06/15 13:44:54 by aldiaz-u         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,12 @@
 # include <unistd.h>
 # include "printf/ft_printf.h"
 
-typedef struct	s_pipex
+typedef struct s_pipex
 {
 	int		argc;
 	char	**argv;
 	char	**envp;
+	int		exit_status;
 }				t_pipex;
 char	*get_next_line(int fd);
 char	*ft_strdup(const char *s);

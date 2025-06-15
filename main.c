@@ -6,7 +6,7 @@
 /*   By: aldiaz-u <aldiaz-u@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 13:30:15 by aldiaz-u          #+#    #+#             */
-/*   Updated: 2025/06/12 18:36:45 by aldiaz-u         ###   ########.fr       */
+/*   Updated: 2025/06/15 13:49:28 by aldiaz-u         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,19 @@ void	pipe_err(int *fd)
 	}
 }
 
+void	ft_free_split(char **split)
+{
+	int	index;
+
+	index = 0;
+	while (split[index])
+	{
+		free(split[index]);
+		index++;
+	}
+	free(split);
+}
+
 int	count_words(char *str)
 {
 	int	i;
@@ -35,26 +48,27 @@ int	count_words(char *str)
 		while (str[i] == ' ')
 			i++;
 		if (!str[i])
-			break;
-		if (str[i] == '\'')
+			break ;
+		if (str[i] == '\'' || str[i] == '\"')
 		{
 			i++;
-			while (str[i] && str[i] != '\'')
+			while (str[i] && str[i] != '\'' && str[i] != '\"')
 				i++;
-			if (str[i] == '\'')
+			if (str[i] == '\'' || str[i] == '\"')
 				count++;
 		}
-		else if (str[i] != ' ' && str[i] != '\'')
-				count++;
+		else if (str[i] != ' ' && str[i] != '\'' && str[i] != '\"')
+			count++;
 		i++;
 	}
-	return(count);
+	return (count);
 }
+
 char	*extract_word(const char *str, int *i)
 {
-	int	start;
-	char quote;
-	char *word;
+	int		start;
+	char	quote;
+	char	*word;
 
 	if (str[*i] == '\'' || str[*i] == '\"')
 	{
@@ -76,7 +90,7 @@ char	*extract_word(const char *str, int *i)
 	}
 }
 
-char **split_pipex(char *str)
+char	**split_pipex(char *str)
 {
 	char	**splited;
 	int		j;
@@ -90,7 +104,7 @@ char **split_pipex(char *str)
 		while (str[i] == ' ')
 			i++;
 		if (!str[i])
-			break;
+			break ;
 		splited[j++] = extract_word(str, &i);
 	}
 	splited[j] = NULL;
@@ -100,7 +114,7 @@ char **split_pipex(char *str)
 char	*fill_path(char *path)
 {
 	int	index;
-	
+
 	index = 0;
 	if (path)
 	{
@@ -113,33 +127,47 @@ char	*fill_path(char *path)
 	}
 	return (path);
 }
-char	*get_path(char *command)
-{
-	pid_t	pid;
-	int		fd[2];
-	char	*args[3];
-	char	*path;
 
-	path = NULL;
-	pipe_err(fd);
-	pid = fork();
-	if (pid == 0)
+char	*find_command(char **path, char *command)
+{
+	int		j;
+	char	*full_path;
+
+	j = 0;
+	while (path[j])
 	{
-		dup2(fd[1], STDOUT_FILENO);
-		close(fd[0]);
-		close(fd[1]);
-		args[0] = "/usr/bin/which";
-		args[1] = command;
-		args[2] = NULL;
-		execve(args[0], args, NULL);
-		exit(1);
+		full_path = malloc(ft_strlen(path[j]) + ft_strlen(command) + 2);
+		ft_strlcpy(full_path, path[j], ft_strlen(path[j]) + 2);
+		ft_strlcat(full_path, "/", ft_strlen(path[j]) + 2);
+		ft_strlcat(full_path, command, ft_strlen(command)
+			+ ft_strlen(path[j]) + 2);
+		if (access(full_path, X_OK) == 0)
+			return (full_path);
+		free(full_path);
+		j++;
 	}
-	close(fd[1]);
-	wait(NULL);
-	path = get_next_line(fd[0]);
-	close(fd[0]);
-	path = fill_path(path);
-	return (path);
+	return (NULL);
+}
+
+char	*get_path(char *command, t_pipex *px)
+{
+	int		i;
+	char	*path_env;
+	char	**path;
+	char	*result;
+
+	i = 0;
+	path_env = NULL;
+	while (px->envp[i] && ft_strncmp(px->envp[i],
+			"PATH=", ft_strlen("PATH=")) != 0)
+		i++;
+	if (!px->envp[i])
+		return (NULL);
+	path_env = px->envp[i] + 5;
+	path = ft_split(path_env, ':');
+	result = find_command(path, command);
+	ft_free_split(path);
+	return (result);
 }
 
 int	get_outfile(char **argv)
@@ -152,7 +180,7 @@ int	get_outfile(char **argv)
 	return (index - 1);
 }
 
-int	exec_first_command(char *path, int infile, char **args,t_pipex *px)
+int	exec_first_command(char *path, int infile, char **args, t_pipex *px)
 {
 	pid_t	pid;
 	int		fd[2];
@@ -212,8 +240,10 @@ void	exec_final_command(char *path, char **args, int infile, t_pipex *px)
 {
 	pid_t	pid;
 	int		outfile_fd;
+	int		status;
 
-	outfile_fd = open(px -> argv[px -> argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	outfile_fd = open(px -> argv[px -> argc - 1],
+			O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	pid = fork();
 	if (pid == 0)
 	{
@@ -226,62 +256,11 @@ void	exec_final_command(char *path, char **args, int infile, t_pipex *px)
 		exit(1);
 	}
 	close(outfile_fd);
-	wait(NULL);
-}
-
-/* char	*exec_awk(char *arg)
-{
-	int		end;
-	int		index;
-	char	*script;
-	int		j;
-
-	index = 1;
-	end = 1;
-	j = 0;
-	while (arg[end])
-	{
-		if (arg[end] == '\'')
-			break;
-		end++;
-	}
-	script = malloc(end);
-	if (!script)
-		return(NULL);
-	while (index < end)
-		script[j++] = arg[index++];
-	script[j] = '\0';
-	ft_printf("%s\n",script);
-	return (script);
-}
-
-char **return_awk_args(char *command)
-{
-	char **args;
-	char *scrip_start;
-
-	args = malloc(3 * sizeof(char *));
-	args[0] = ft_strdup("awk");
-	scrip_start = command + 3;
-	while (*scrip_start == ' ')
-		scrip_start++;
-	args[1] = ft_strdup(scrip_start);
-	args[2] = NULL;
-
-	return(args);
-} */
-
-void	ft_free_split(char **split)
-{
-	int	index;
-
-	index = 0;
-	while (split[index])
-	{
-		free(split[index]);
-		index++;
-	}
-	free(split);
+	waitpid(pid, &status, 0);
+	if (WIFEXITED(status))
+		px -> exit_status = WEXITSTATUS(status);
+	else
+		px -> exit_status = 1;
 }
 
 int	first(t_pipex *px)
@@ -293,7 +272,7 @@ int	first(t_pipex *px)
 
 	infile = open(px -> argv[1], O_RDONLY);
 	split = split_pipex(px -> argv[2]);
-	path = get_path(split[0]);
+	path = get_path(split[0], px);
 	fd = exec_first_command(path, infile, split, px);
 	ft_free_split(split);
 	free(path);
@@ -306,7 +285,7 @@ int	middle(t_pipex *px, int fd, int prev_fd, int index)
 	char	*path;
 
 	split = split_pipex(px -> argv[index]);
-	path = get_path(split[0]);
+	path = get_path(split[0], px);
 	fd = exec_commands(path, split, fd, px);
 	close(prev_fd);
 	ft_free_split(split);
@@ -314,25 +293,26 @@ int	middle(t_pipex *px, int fd, int prev_fd, int index)
 	return (fd);
 }
 
-void	final(int fd, t_pipex *px)
+int	final(int fd, t_pipex *px)
 {
 	char	**split;
 	char	*path;
 
 	split = split_pipex(px -> argv[px -> argc -2]);
-	path = get_path(split[0]);
+	path = get_path(split[0], px);
 	exec_final_command(path, split, fd, px);
 	ft_free_split(split);
 	free(path);
 	close(fd);
+	return (px -> exit_status);
 }
 
-void	run_pipex(t_pipex *px)
+int	run_pipex(t_pipex *px)
 {
 	int	index;
 	int	fd;
 	int	prev_fd;
-	
+
 	fd = first(px);
 	index = 3;
 	while (index < px -> argc - 2)
@@ -341,25 +321,26 @@ void	run_pipex(t_pipex *px)
 		fd = middle(px, fd, prev_fd, index);
 		index++;
 	}
-	final(fd, px);
+	return (final(fd, px));
 }
 
-int	main(int argc, char *argv[], char *envp[ ])
+int	main(int argc, char *argv[], char *envp[])
 {
-	t_pipex px;
+	t_pipex	px;
 
 	px.argc = argc;
 	px.argv = argv;
 	px.envp = envp;
 	if (argc < 5)
 	{
-		ft_printf("error\n");
+		ft_printf("Usage: %s infile cmd1 cmd2 ... outfile\n", argv[0]);
 		exit(1);
 	}
 	if (access(argv[1], F_OK) == -1)
 	{
 		perror(argv[1]);
-		exit(-1);
+		exit(1);
 	}
-	run_pipex(&px);
+	px.exit_status = run_pipex(&px);
+	return (px.exit_status);
 }
