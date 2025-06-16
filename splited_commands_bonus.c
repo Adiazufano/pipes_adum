@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   splited_commands.c                                 :+:      :+:    :+:   */
+/*   splited_commands_bonus.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aldiaz-u <aldiaz-u@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/16 17:51:57 by aldiaz-u          #+#    #+#             */
-/*   Updated: 2025/06/16 18:33:19 by aldiaz-u         ###   ########.fr       */
+/*   Created: 2025/06/16 14:31:59 by aldiaz-u          #+#    #+#             */
+/*   Updated: 2025/06/16 17:47:14 by aldiaz-u         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "pipex_bonus.h"
 
 static int	count_words(char *str)
 {

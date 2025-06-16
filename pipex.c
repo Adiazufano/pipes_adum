@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aldiaz-u <aldiaz-u@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/09 13:30:15 by aldiaz-u          #+#    #+#             */
-/*   Updated: 2025/06/16 14:17:55 by aldiaz-u         ###   ########.fr       */
+/*   Created: 2025/06/16 17:47:48 by aldiaz-u          #+#    #+#             */
+/*   Updated: 2025/06/16 18:33:00 by aldiaz-u         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,26 +28,12 @@ static int	first(t_pipex *px)
 	return (fd);
 }
 
-static int	middle(t_pipex *px, int fd, int prev_fd, int index)
-{
-	char	**split;
-	char	*path;
-
-	split = split_pipex(px -> argv[index]);
-	path = get_path(split[0], px);
-	fd = exec_commands(path, split, fd, px);
-	close(prev_fd);
-	ft_free_split(split);
-	free(path);
-	return (fd);
-}
-
 static int	final(int fd, t_pipex *px)
 {
 	char	**split;
 	char	*path;
 
-	split = split_pipex(px -> argv[px -> argc -2]);
+	split = split_pipex(px -> argv[3]);
 	path = get_path(split[0], px);
 	exec_final_command(path, split, fd, px);
 	ft_free_split(split);
@@ -58,18 +44,9 @@ static int	final(int fd, t_pipex *px)
 
 static int	run_pipex(t_pipex *px)
 {
-	int	index;
 	int	fd;
-	int	prev_fd;
 
 	fd = first(px);
-	index = 3;
-	while (index < px -> argc - 2)
-	{
-		prev_fd = fd;
-		fd = middle(px, fd, prev_fd, index);
-		index++;
-	}
 	return (final(fd, px));
 }
 
@@ -80,9 +57,9 @@ int	main(int argc, char *argv[], char *envp[])
 	px.argc = argc;
 	px.argv = argv;
 	px.envp = envp;
-	if (argc < 5)
+	if (argc != 5)
 	{
-		ft_printf("Usage: %s infile cmd1 cmd2 ... outfile\n", argv[0]);
+		ft_printf("Usage: %s infile cmd1 cmd2 outfile\n", argv[0]);
 		exit(1);
 	}
 	if (access(argv[1], F_OK) == -1)
