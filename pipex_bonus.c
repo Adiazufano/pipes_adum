@@ -6,7 +6,7 @@
 /*   By: aldiaz-u <aldiaz-u@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 13:30:15 by aldiaz-u          #+#    #+#             */
-/*   Updated: 2025/06/16 17:47:52 by aldiaz-u         ###   ########.fr       */
+/*   Updated: 2025/06/17 10:05:07 by aldiaz-u         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,10 +86,7 @@ int	main(int argc, char *argv[], char *envp[])
 		exit(1);
 	}
 	if (access(argv[1], F_OK) == -1)
-	{
 		perror(argv[1]);
-		exit(1);
-	}
 	px.exit_status = run_pipex(&px);
 	return (px.exit_status);
 }
