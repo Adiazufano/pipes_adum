@@ -6,7 +6,7 @@
 /*   By: aldiaz-u <aldiaz-u@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/16 17:53:16 by aldiaz-u          #+#    #+#             */
-/*   Updated: 2025/06/16 18:33:28 by aldiaz-u         ###   ########.fr       */
+/*   Updated: 2025/06/17 20:23:36 by aldiaz-u         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ char	*get_path(char *command, t_pipex *px)
 	if (!px->envp[i])
 		return (NULL);
 	path_env = px->envp[i] + 5;
+	if (!*path_env)
+		return (NULL);
 	path = ft_split(path_env, ':');
 	result = find_command(path, command);
 	ft_free_split(path);

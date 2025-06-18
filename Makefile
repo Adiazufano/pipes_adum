@@ -1,6 +1,6 @@
 NAME = pipex
 CC = cc
-CFLAGS = -Wall -Werror -Wextra
+CFLAGS = -Wall -Werror -Wextra -g
 SRCS = pipex.c get_next_line.c get_next_line_utils.c exec_commands.c splited_commands.c path.c
 SRCS_BONUS = pipex_bonus.c get_next_line.c get_next_line_utils.c exec_commands_bonus.c splited_commands_bonus.c path_bonus.c
 OBJS = $(SRCS:.c=.o)
